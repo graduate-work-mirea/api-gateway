@@ -1,0 +1,44 @@
+### Тестирование API Gateway для системы оценки спроса
+### Используйте этот файл с расширением REST Client для VS Code
+### или другим REST-клиентом, поддерживающим формат .rest
+
+@baseUrl = http://localhost:8081
+@token = your_token_here
+
+### Регистрация нового пользователя
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Вход пользователя
+# Этот запрос вернет JWT-токен, который нужно сохранить в переменную @token выше
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Получение данных о спросе для продукта по умолчанию
+GET {{baseUrl}}/analytics/demand
+Authorization: Bearer {{token}}
+
+### Получение данных о спросе для конкретного продукта
+GET {{baseUrl}}/analytics/demand?product_id=product-123
+Authorization: Bearer {{token}}
+
+### Тестирование с неправильным форматом Authorization
+GET {{baseUrl}}/analytics/demand
+Authorization: {{token}}
+
+### Тестирование без заголовка Authorization
+GET {{baseUrl}}/analytics/demand
+
+### Тестирование с недействительным токеном
+GET {{baseUrl}}/analytics/demand
+Authorization: Bearer invalid_token
