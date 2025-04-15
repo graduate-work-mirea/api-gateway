@@ -1,7 +1,7 @@
 ### API Gateway Service Testing
 
 @baseUrl = http://localhost:8000
-@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOGZkNjc4MmItNDdhZS00NmMzLWJlMGQtOGU2MTczYzQ2ODc5Iiwicm9sZSI6InVzZXIiLCJzdWIiOiI4ZmQ2NzgyYi00N2FlLTQ2YzMtYmUwZC04ZTYxNzNjNDY4NzkiLCJleHAiOjE3NDQ3NTU1MDIsImlhdCI6MTc0NDc1MTkwMn0.zH2nNDGlDFtWcjvOzvmq4m_ulzYxaEFlVWc3pvl6nGk
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiZDdiNjY3ZjUtNjU4OS00ZDVkLWE0ZTQtNzA4Yzk5NjRhOTkzIiwicm9sZSI6InVzZXIiLCJzdWIiOiJkN2I2NjdmNS02NTg5LTRkNWQtYTRlNC03MDhjOTk2NGE5OTMiLCJleHAiOjE3NDQ3NTgyMDAsImlhdCI6MTc0NDc1NDYwMH0.joe0felHQcxOiMoV9K751jsyjyLIhJCYjqeKpsT4GRI
 
 ### Health Check
 GET {{baseUrl}}/health
@@ -20,8 +20,8 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "user@example.com",
-  "password": "password123"
+  "email": "slashersdcat@gmail.com",
+  "password": "qwerty"
 }
 
 ### Make a prediction with full features
