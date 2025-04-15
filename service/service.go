@@ -42,12 +42,29 @@ type service struct {
 // NewService creates a new service
 func NewService(cfg *config.Config, dbRepo repository.DBRepository, cacheRepo repository.CacheRepository) Service {
 	log.Println("Service: Creating new service")
-	return &service{
+
+	// Create service instance
+	svc := &service{
 		config:     cfg,
 		dbRepo:     dbRepo,
 		cacheRepo:  cacheRepo,
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
+
+	// Populate cache from database on startup
+	log.Println("Service: Populating cache from database")
+	go func() {
+		predictions, err := dbRepo.GetAllPredictions()
+		if err != nil {
+			log.Printf("Service: Error loading predictions from database: %v", err)
+			return
+		}
+
+		cacheRepo.PopulateFromMap(predictions)
+		log.Printf("Service: Successfully populated cache with predictions for %d users", len(predictions))
+	}()
+
+	return svc
 }
 
 // RegisterUser registers a new user

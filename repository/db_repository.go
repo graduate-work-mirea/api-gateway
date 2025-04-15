@@ -17,6 +17,7 @@ import (
 type DBRepository interface {
 	SavePrediction(userID uuid.UUID, request interface{}, result *model.PredictionResult, minimal bool) error
 	GetUserPredictions(userID uuid.UUID) ([]model.PredictionHistory, error)
+	GetAllPredictions() (map[uuid.UUID][]model.PredictionHistory, error)
 	Close() error
 }
 
@@ -157,6 +158,68 @@ func (r *postgreRepository) GetUserPredictions(userID uuid.UUID) ([]model.Predic
 		}
 
 		predictions = append(predictions, prediction)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return predictions, nil
+}
+
+// GetAllPredictions retrieves all predictions from the database grouped by user
+func (r *postgreRepository) GetAllPredictions() (map[uuid.UUID][]model.PredictionHistory, error) {
+	rows, err := r.db.Query(`
+		SELECT id, user_id, request, result, created_at, endpoint_type, minimal
+		FROM prediction_history
+		WHERE (result->>'predicted_price' != '0' OR result->>'predicted_sales' != '0')
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Group predictions by user ID
+	predictions := make(map[uuid.UUID][]model.PredictionHistory)
+
+	for rows.Next() {
+		var prediction model.PredictionHistory
+		var requestJSON, resultJSON []byte
+
+		err := rows.Scan(
+			&prediction.ID,
+			&prediction.UserID,
+			&requestJSON,
+			&resultJSON,
+			&prediction.CreatedAt,
+			&prediction.EndpointType,
+			&prediction.Minimal,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Unmarshal request based on minimal flag
+		if prediction.Minimal {
+			var minimalRequest model.PredictionRequestMinimal
+			if err := json.Unmarshal(requestJSON, &minimalRequest); err != nil {
+				return nil, err
+			}
+		} else {
+			if err := json.Unmarshal(requestJSON, &prediction.Request); err != nil {
+				return nil, err
+			}
+		}
+
+		// Unmarshal result
+		if err := json.Unmarshal(resultJSON, &prediction.Result); err != nil {
+			return nil, err
+		}
+
+		// Add to user's predictions
+		userPredictions := predictions[prediction.UserID]
+		predictions[prediction.UserID] = append(userPredictions, prediction)
 	}
 
 	if err := rows.Err(); err != nil {

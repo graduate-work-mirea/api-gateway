@@ -13,6 +13,7 @@ import (
 type CacheRepository interface {
 	SavePrediction(userID uuid.UUID, prediction model.PredictionHistory) error
 	GetUserPredictions(userID uuid.UUID) ([]model.PredictionHistory, bool)
+	PopulateFromMap(predictions map[uuid.UUID][]model.PredictionHistory)
 }
 
 type lruCacheRepository struct {
@@ -81,4 +82,23 @@ func (r *lruCacheRepository) GetUserPredictions(userID uuid.UUID) ([]model.Predi
 	}
 
 	return filteredPredictions, exists
+}
+
+// PopulateFromMap populates the cache with predictions from a map
+func (r *lruCacheRepository) PopulateFromMap(predictions map[uuid.UUID][]model.PredictionHistory) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	// Clear existing cache
+	r.userCache = make(map[uuid.UUID][]model.PredictionHistory)
+
+	// Populate cache from map
+	for userID, userPredictions := range predictions {
+		r.userCache[userID] = userPredictions
+
+		// Also add each prediction to the LRU cache
+		for _, prediction := range userPredictions {
+			r.cache.Add(prediction.ID, prediction)
+		}
+	}
 }
