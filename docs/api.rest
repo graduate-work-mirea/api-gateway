@@ -1,0 +1,85 @@
+### API Gateway Service Testing
+
+@baseUrl = http://localhost:8000
+@authToken = your_jwt_token_here
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Make a prediction with full features
+POST {{baseUrl}}/api/v1/predict
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "product_name": "Example Product",
+  "brand": "Example Brand",
+  "category": "Electronics",
+  "region": "North America",
+  "seller": "Example Seller",
+  "price": 199.99,
+  "original_price": 249.99,
+  "discount_percentage": 20.0,
+  "stock_level": 100,
+  "customer_rating": 4.5,
+  "review_count": 120,
+  "delivery_days": 3,
+  "is_weekend": false,
+  "is_holiday": false,
+  "day_of_week": 2,
+  "month": 6,
+  "quarter": 2,
+  "sales_quantity_lag_1": 25,
+  "price_lag_1": 199.99,
+  "sales_quantity_lag_3": 22,
+  "price_lag_3": 199.99,
+  "sales_quantity_lag_7": 20,
+  "price_lag_7": 209.99,
+  "sales_quantity_rolling_mean_3": 23,
+  "price_rolling_mean_3": 199.99,
+  "sales_quantity_rolling_mean_7": 21,
+  "price_rolling_mean_7": 204.99
+}
+
+### Make a prediction with minimal input
+POST {{baseUrl}}/api/v1/predict/minimal
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "product_name": "Example Product",
+  "region": "North America",
+  "seller": "Example Seller",
+  "price": 199.99
+}
+
+### Train the prediction models
+POST {{baseUrl}}/api/v1/train
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Check model status
+GET {{baseUrl}}/api/v1/status
+Authorization: Bearer {{authToken}}
+
+### Get user prediction statistics
+GET {{baseUrl}}/api/v1/statistics/user
+Authorization: Bearer {{authToken}} 

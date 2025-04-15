@@ -1,0 +1,85 @@
+### API Gateway Service Testing
+
+@baseUrl = http://localhost:8000
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOGZkNjc4MmItNDdhZS00NmMzLWJlMGQtOGU2MTczYzQ2ODc5Iiwicm9sZSI6InVzZXIiLCJzdWIiOiI4ZmQ2NzgyYi00N2FlLTQ2YzMtYmUwZC04ZTYxNzNjNDY4NzkiLCJleHAiOjE3NDQ3NTU1MDIsImlhdCI6MTc0NDc1MTkwMn0.zH2nNDGlDFtWcjvOzvmq4m_ulzYxaEFlVWc3pvl6nGk
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### Make a prediction with full features
+POST {{baseUrl}}/api/v1/predict
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "product_name": "Джинсы Lee Rider",
+  "brand": "Lee",
+  "category": "Одежда",
+  "region": "Москва",
+  "seller": "АО «Шарапов»",
+  "price": 7500.0,
+  "original_price": 7500.0,
+  "discount_percentage": 0.0,
+  "stock_level": 229.0,
+  "customer_rating": 4.5,
+  "review_count": 408.0,
+  "delivery_days": 1.0,
+  "is_weekend": false,
+  "is_holiday": false,
+  "day_of_week": 3,
+  "month": 3,
+  "quarter": 1,
+  "sales_quantity_lag_1": 11.0,
+  "price_lag_1": 9700.0,
+  "sales_quantity_lag_3": 10.0,
+  "price_lag_3": 8590.0,
+  "sales_quantity_lag_7": 26.0,
+  "price_lag_7": 6320.0,
+  "sales_quantity_rolling_mean_3": 7.0,
+  "price_rolling_mean_3": 7543.0,
+  "sales_quantity_rolling_mean_7": 10.714,
+  "price_rolling_mean_7": 7396.14
+}
+
+### Make a prediction with minimal input
+POST {{baseUrl}}/api/v1/predict/minimal
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "product_name": "Смартфон Xiaomi 14 Pro",
+  "region": "Москва",
+  "seller": "ИП «Некрасова, Фролов и Кириллова»",
+  "price": 44977
+}
+
+### Train the prediction models
+POST {{baseUrl}}/api/v1/train
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Check model status
+GET {{baseUrl}}/api/v1/status
+Authorization: Bearer {{authToken}}
+
+### Get user prediction statistics
+GET {{baseUrl}}/api/v1/statistics/user
+Authorization: Bearer {{authToken}} 

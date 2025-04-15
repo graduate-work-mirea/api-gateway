@@ -1,0 +1,639 @@
+openapi: 3.0.0
+info:
+  title: API Gateway Service
+  description: API Gateway for Authentication and ML Prediction Services
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: Authentication operations
+  - name: Prediction
+    description: ML prediction operations
+  - name: Statistics
+    description: User statistics operations
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user and returns authentication tokens
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegisterResponse'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User with this email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login a user
+      description: Authenticates a user and returns tokens
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginResponse'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/predict:
+    post:
+      tags:
+        - Prediction
+      summary: Make a prediction with full features
+      description: Predicts price and sales using all features
+      operationId: predict
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionRequest'
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResult'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/predict/minimal:
+    post:
+      tags:
+        - Prediction
+      summary: Make a prediction with minimal input
+      description: Predicts price and sales using minimal input data
+      operationId: predictMinimal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionRequestMinimal'
+      responses:
+        '200':
+          description: Successful prediction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResult'
+        '400':
+          description: Invalid request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/train:
+    post:
+      tags:
+        - Prediction
+      summary: Train the prediction models
+      description: Trains the price and sales prediction models
+      operationId: trainModels
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Models trained successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/status:
+    get:
+      tags:
+        - Prediction
+      summary: Check model status
+      description: Checks if prediction models are trained and available
+      operationId: getModelStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/statistics/user:
+    get:
+      tags:
+        - Statistics
+      summary: Get user prediction statistics
+      description: Retrieves prediction history and statistics for the current user
+      operationId: getUserStatistics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatistics'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    UserRegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email of the user
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 6
+          description: Password of the user
+          example: password123
+
+    UserRegisterResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        email:
+          type: string
+          format: email
+          description: Email of the user
+        role:
+          type: string
+          description: Role of the user
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: JWT refresh token
+        expires_at:
+          type: integer
+          format: int64
+          description: Expiration time of the access token (unix timestamp)
+        created_at:
+          type: string
+          format: date-time
+          description: User creation time
+
+    UserLoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email of the user
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          description: Password of the user
+          example: password123
+
+    UserLoginResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        email:
+          type: string
+          format: email
+          description: Email of the user
+        role:
+          type: string
+          description: Role of the user
+        access_token:
+          type: string
+          description: JWT access token
+        refresh_token:
+          type: string
+          description: JWT refresh token
+        expires_at:
+          type: integer
+          format: int64
+          description: Expiration time of the access token (unix timestamp)
+        last_login_at:
+          type: string
+          format: date-time
+          description: Last login time
+
+    PredictionRequest:
+      type: object
+      required:
+        - product_name
+        - brand
+        - category
+        - region
+        - seller
+        - price
+        - original_price
+        - discount_percentage
+        - stock_level
+        - customer_rating
+        - review_count
+        - delivery_days
+        - is_weekend
+        - is_holiday
+        - day_of_week
+        - month
+        - quarter
+        - sales_quantity_lag_1
+        - price_lag_1
+        - sales_quantity_lag_3
+        - price_lag_3
+        - sales_quantity_lag_7
+        - price_lag_7
+        - sales_quantity_rolling_mean_3
+        - price_rolling_mean_3
+        - sales_quantity_rolling_mean_7
+        - price_rolling_mean_7
+      properties:
+        product_name:
+          type: string
+          description: Name of the product
+        brand:
+          type: string
+          description: Brand of the product
+        category:
+          type: string
+          description: Category of the product
+        region:
+          type: string
+          description: Region where the product is sold
+        seller:
+          type: string
+          description: Seller of the product
+        price:
+          type: number
+          format: float
+          description: Current price of the product
+        original_price:
+          type: number
+          format: float
+          description: Original price of the product
+        discount_percentage:
+          type: number
+          format: float
+          description: Discount percentage
+        stock_level:
+          type: number
+          format: float
+          description: Current stock level
+        customer_rating:
+          type: number
+          format: float
+          description: Average customer rating
+        review_count:
+          type: number
+          format: float
+          description: Number of customer reviews
+        delivery_days:
+          type: number
+          format: float
+          description: Delivery time in days
+        is_weekend:
+          type: boolean
+          description: Whether the day is a weekend
+        is_holiday:
+          type: boolean
+          description: Whether the day is a holiday
+        day_of_week:
+          type: integer
+          description: Day of the week (0-6)
+        month:
+          type: integer
+          description: Month (1-12)
+        quarter:
+          type: integer
+          description: Quarter (1-4)
+        sales_quantity_lag_1:
+          type: number
+          format: float
+          description: Sales quantity 1 day ago
+        price_lag_1:
+          type: number
+          format: float
+          description: Price 1 day ago
+        sales_quantity_lag_3:
+          type: number
+          format: float
+          description: Sales quantity 3 days ago
+        price_lag_3:
+          type: number
+          format: float
+          description: Price 3 days ago
+        sales_quantity_lag_7:
+          type: number
+          format: float
+          description: Sales quantity 7 days ago
+        price_lag_7:
+          type: number
+          format: float
+          description: Price 7 days ago
+        sales_quantity_rolling_mean_3:
+          type: number
+          format: float
+          description: Average sales quantity over the last 3 days
+        price_rolling_mean_3:
+          type: number
+          format: float
+          description: Average price over the last 3 days
+        sales_quantity_rolling_mean_7:
+          type: number
+          format: float
+          description: Average sales quantity over the last 7 days
+        price_rolling_mean_7:
+          type: number
+          format: float
+          description: Average price over the last 7 days
+
+    PredictionRequestMinimal:
+      type: object
+      required:
+        - product_name
+        - region
+        - seller
+      properties:
+        product_name:
+          type: string
+          description: Name of the product
+        region:
+          type: string
+          description: Region where the product is sold
+        seller:
+          type: string
+          description: Seller of the product
+        prediction_date:
+          type: string
+          format: date-time
+          description: Optional date for the prediction (default is current date)
+        price:
+          type: number
+          format: float
+          description: Optional override for current price of the product
+        original_price:
+          type: number
+          format: float
+          description: Optional override for original price of the product
+        stock_level:
+          type: number
+          format: float
+          description: Optional override for current stock level
+        customer_rating:
+          type: number
+          format: float
+          description: Optional override for average customer rating
+        review_count:
+          type: number
+          format: float
+          description: Optional override for number of customer reviews
+        delivery_days:
+          type: number
+          format: float
+          description: Optional override for delivery time in days
+
+    PredictionResult:
+      type: object
+      properties:
+        predicted_price:
+          type: number
+          format: float
+          description: Predicted price for the product
+        predicted_sales:
+          type: number
+          format: float
+          description: Predicted sales quantity for the product
+
+    TrainingResult:
+      type: object
+      properties:
+        price_model:
+          type: object
+          properties:
+            best_iteration:
+              type: integer
+              description: Best iteration number for price model
+            best_score:
+              type: number
+              format: float
+              description: Best score for price model
+        sales_model:
+          type: object
+          properties:
+            best_iteration:
+              type: integer
+              description: Best iteration number for sales model
+            best_score:
+              type: number
+              format: float
+              description: Best score for sales model
+
+    ModelStatus:
+      type: object
+      properties:
+        models_trained:
+          type: boolean
+          description: Whether the models are trained and available
+
+    PredictionHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the prediction
+        user_id:
+          type: string
+          format: uuid
+          description: User who made the prediction
+        request:
+          oneOf:
+            - $ref: '#/components/schemas/PredictionRequest'
+            - $ref: '#/components/schemas/PredictionRequestMinimal'
+          description: The prediction request
+        result:
+          $ref: '#/components/schemas/PredictionResult'
+          description: The prediction result
+        created_at:
+          type: string
+          format: date-time
+          description: When the prediction was made
+        endpoint_type:
+          type: string
+          description: Which endpoint was used (predict or predict/minimal)
+        minimal:
+          type: boolean
+          description: Whether this was a minimal prediction request
+
+    UserStatistics:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+        predictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PredictionHistory'
+          description: List of user's predictions
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
